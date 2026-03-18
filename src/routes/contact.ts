@@ -15,7 +15,10 @@ interface ContactFormData {
 router.post('/contact', async (req: Request, res: Response) => {
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      //service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, 
       auth: {
         user: process.env.SMTP_EMAIL,
         pass: process.env.SMTP_PASSWORD,
