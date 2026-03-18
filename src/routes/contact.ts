@@ -1,5 +1,5 @@
 import express, { Router, Request, Response } from 'express'
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
 
 const router: Router = express.Router()
 
@@ -14,16 +14,7 @@ interface ContactFormData {
 // Contact form endpoint
 router.post('/contact', async (req: Request, res: Response) => {
   try {
-    const transporter = nodemailer.createTransport({
-      //service: 'gmail',
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true, 
-      auth: {
-        user: process.env.SMTP_EMAIL,
-        pass: process.env.SMTP_PASSWORD,
-      },
-    })
+    const resend = new Resend(process.env.RESEND_API_KEY)
     const body: ContactFormData = req.body
 
     // Validate required fields
@@ -38,10 +29,11 @@ router.post('/contact', async (req: Request, res: Response) => {
     }
 
     const recipientEmail = process.env.RECIPIENT_EMAIL || 'porulontechnologies@gmail.com'
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
 
     // Email to the company
     const companyEmailOptions = {
-      from: process.env.SMTP_EMAIL,
+      from: fromEmail,
       to: recipientEmail,
       subject: `New Contact Form Submission from ${body.firstName} ${body.lastName}`,
       html: `
@@ -69,7 +61,7 @@ router.post('/contact', async (req: Request, res: Response) => {
 
     // Confirmation email to the user
     const userEmailOptions = {
-      from: process.env.SMTP_EMAIL,
+      from: fromEmail,
       to: body.email,
       subject: 'We received your message - Porulon Technologies',
       html: `
@@ -110,8 +102,8 @@ router.post('/contact', async (req: Request, res: Response) => {
     }
 
     // Send both emails
-    await transporter.sendMail(companyEmailOptions)
-    await transporter.sendMail(userEmailOptions)
+    await resend.emails.send(companyEmailOptions)
+    await resend.emails.send(userEmailOptions)
 
     return res.status(200).json({ message: 'Email sent successfully' })
   } catch (error) {
