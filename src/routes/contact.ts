@@ -28,7 +28,7 @@ router.post('/contact', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Invalid email format' })
     }
 
-    const recipientEmail = process.env.RECIPIENT_EMAIL || 'porulontechnologies@gmail.com'
+    const recipientEmail = process.env.RECIPIENT_EMAIL || 'info@porulontech.com'
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
 
     // Email to the company
